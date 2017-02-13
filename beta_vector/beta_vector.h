@@ -162,7 +162,6 @@ public:
   friend std::ostream& operator <<(std::ostream& ord, const beta_vector<type_d> &out);
   void push_back(const data_type &val);
   void resize(size_t addsize = 5);
-  void resize1(size_t addsize = 5);
   beta_vector<data_type>& operator +=(const beta_vector<data_type>& cur);
   beta_vector<data_type>& operator +=(data_type add);
   ~beta_vector()
@@ -249,7 +248,6 @@ beta_vector<t>& beta_vector<t>::operator =(const beta_vector<t> &coppy)
   capacity = 0;
   resize(coppy.capacity);
   size_vec = coppy.size_vec;
-  //capacity = coppy.capacity;
   for(size_t i = 0; i < coppy.size_vec; ++i)
 	data[i] = coppy.data[i];
   return *this;
@@ -284,18 +282,6 @@ void beta_vector<type_d>::resize(size_t addsize)
   delete []data;
   data = new_mas;
 }
-
-template <class type_d>
-void beta_vector<type_d>::resize1(size_t addsize)
-{
-  //std::cout << std::endl << "capasity is === " << capacity << std::endl;
-  type_d *new_mas = new type_d[addsize];
-  for(size_t i = 0; i < size_vec; ++i)
-	new_mas[i] = data[i];
-  delete []data;
-  data = new_mas;
-}
-
 
 template <class data_type>
 void beta_vector<data_type>::push_back(const data_type &val)
