@@ -7,32 +7,77 @@ using namespace std;
 
 template class beta_vector<int>;
 
+template<class T>
+struct value
+{
+  typedef typename beta_vector<T>::iterator value_type;
+};
+
+template <class T>
+struct value<T*>
+{
+  typedef T type;
+};
+
+//template <>
+//struct value<iterator>
+//{
+//  typedef int type ;
+//};
+
+//template <class Iter, class T>
+//T sum (value<Iter> v , value<Iter>end)
+//{
+//  T s = 0;
+//  while ( v != end ) {
+//	s = s + *v;
+//	v ++;
+//  }
+//  return s ;
+//}
+
 int main()
 {
   beta_vector<int> a ={2,3,5,7,98};
-  const beta_vector<int> b ={1,2,57,5,564,6,4};
-//  beta_vector<int> c(a+b);
-//  cout << c.size() <<endl<< c;
-//  c.push_back(5);
-//  c.push_back(5);
-//  c.push_back(5);
-//  c.push_back(5);
-//  c.push_back(5);
-//  c.push_back(5);
-//  c.push_back(5);
-//  c.push_back(5);
-//  c.push_back(5);
-//  c.push_back(5);
-//  c.push_back(5);
-//  c.push_back(5);
-//  c.push_back(5);
-//  c.push_back(5);
-//  c.push_back(5);
-  for(beta_vector<int>::iterator i = a.begin(); i != a.end(); ++i)
-	cout << *i << ' ';
-cout << endl;
-  for(beta_vector<int>::const_iterator i = b.begin(); i != b.end(); ++i)
-	cout << *i << ' ';
+  beta_vector<int> b ={1,2,57,5,564,6,4};
+//  beta_vector<int>::iterator i = a.begin();
+//  beta_vector<int>::iterator e = a.end();
+//  cout << sum(i, e);
+  beta_vector<int> c = a+b;
+  cout << c.size() <<endl<< c;
+  cout << '*' << c.size() <<'*' << endl;
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  b.push_back(5);
+  cout <<endl<< c;
+
+
+
+  //cout << c;
+//  for(beta_vector<int>::iterator i = a.begin(); i != a.end(); ++i)
+//	cout << *i << ' ';
+//cout << endl;
+//  for(beta_vector<int>::const_iterator i = b.begin(); i != b.end(); ++i)
+//	cout << *i << ' ';
 //  cout <<endl<< c;
   /*
   beta_vector<fraction> my;

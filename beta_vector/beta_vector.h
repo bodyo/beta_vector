@@ -162,6 +162,7 @@ public:
   friend std::ostream& operator <<(std::ostream& ord, const beta_vector<type_d> &out);
   void push_back(const data_type &val);
   void resize(size_t addsize = 5);
+  void resize1(size_t addsize = 5);
   beta_vector<data_type>& operator +=(const beta_vector<data_type>& cur);
   beta_vector<data_type>& operator +=(data_type add);
   ~beta_vector()
@@ -170,7 +171,7 @@ public:
   }
   data_type& operator[](size_t);
   inline size_t size() const{ return size_vec; }
-  beta_vector& operator =(beta_vector &coppy);
+  beta_vector& operator =(const beta_vector &coppy);
   beta_vector& operator =(beta_vector &&coppy);
   data_type pop_back();
 };
@@ -202,9 +203,9 @@ beta_vector<data_type>& beta_vector<data_type>::operator =(beta_vector<data_type
 template<class data_elem>
 beta_vector<data_elem>::beta_vector(const beta_vector<data_elem> &temp)
 {
-  data = new data_elem[temp.size_vec];
+  data = new data_elem[temp.size_vec+1];
   size_vec = temp.size_vec;
-  capacity = temp.capacity;
+  capacity = temp.size_vec+1;
   for(size_t i = 0; i < temp.size_vec; ++i)
       data[i] = temp.data[i];
 }
@@ -228,7 +229,7 @@ data_type beta_vector<data_type>::get_data_elem(size_t elem) const
 template<class data_type>
 beta_vector<data_type>& beta_vector<data_type>::operator +=(const beta_vector<data_type>& cur)
 {
-  resize(cur.size_vec+size_vec);
+  resize(cur.size_vec);
   for(size_t i = 0; i < cur.size(); ++i)
     data[i] += cur.data[i];
   if(size_vec < cur.size_vec)
@@ -237,19 +238,20 @@ beta_vector<data_type>& beta_vector<data_type>::operator +=(const beta_vector<da
 }
 
 template<class data_type>
-beta_vector<data_type> operator+ (beta_vector<data_type>& first, beta_vector<data_type>& second)
+beta_vector<data_type> operator+ (beta_vector<data_type> first, beta_vector<data_type>& second)
 {
   return first+=second;
 }
 
 template <class t>
-beta_vector<t>& beta_vector<t>::operator =(beta_vector<t> &coppy)
+beta_vector<t>& beta_vector<t>::operator =(const beta_vector<t> &coppy)
 {
-  size_vec = coppy.size();
-  capacity = coppy.size();
-  resize(size_vec);
-  for(size_t i = 0; i < coppy.size(); ++i)
-    data[i] = coppy.data[i];
+  capacity = 0;
+  resize(coppy.capacity);
+  size_vec = coppy.size_vec;
+  //capacity = coppy.capacity;
+  for(size_t i = 0; i < coppy.size_vec; ++i)
+	data[i] = coppy.data[i];
   return *this;
 }
 
@@ -275,17 +277,30 @@ data_elem& beta_vector<data_elem>::operator [](size_t i)
 template <class type_d>
 void beta_vector<type_d>::resize(size_t addsize)
 {
-  type_d *new_mas = new type_d[capacity+=addsize];
+  capacity+=addsize;
+  type_d *new_mas = new type_d[capacity];
   for(size_t i = 0; i < size_vec; ++i)
 	new_mas[i] = data[i];
   delete []data;
   data = new_mas;
 }
 
+template <class type_d>
+void beta_vector<type_d>::resize1(size_t addsize)
+{
+  //std::cout << std::endl << "capasity is === " << capacity << std::endl;
+  type_d *new_mas = new type_d[addsize];
+  for(size_t i = 0; i < size_vec; ++i)
+	new_mas[i] = data[i];
+  delete []data;
+  data = new_mas;
+}
+
+
 template <class data_type>
 void beta_vector<data_type>::push_back(const data_type &val)
 {
-  if(size_vec > capacity)
+  if(size_vec+1 > capacity)
 	resize();
   std::cout << '|' << size_vec << '|' << capacity << '-';
   data[size_vec++] = val;
