@@ -288,7 +288,6 @@ void beta_vector<data_type>::push_back(const data_type &val)
 {
   if(size_vec+1 > capacity)
 	resize();
-  std::cout << '|' << size_vec << '|' << capacity << '-';
   data[size_vec++] = val;
 }
 
