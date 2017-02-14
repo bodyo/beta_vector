@@ -228,8 +228,8 @@ data_type beta_vector<data_type>::get_data_elem(size_t elem) const
 template<class data_type>
 beta_vector<data_type>& beta_vector<data_type>::operator +=(const beta_vector<data_type>& cur)
 {
-  resize(cur.size_vec);
-  for(size_t i = 0; i < cur.size(); ++i)
+  resize(cur.size_vec+1);
+  for(size_t i = 0; i < cur.size_vec; ++i)
     data[i] += cur.data[i];
   if(size_vec < cur.size_vec)
 	size_vec = cur.size_vec;
