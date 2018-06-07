@@ -1,4 +1,8 @@
 #include "fraction.h"
+
+#include <istream>
+#include <ostream>
+
 int gcd(int a, int b)
 {
   int c;

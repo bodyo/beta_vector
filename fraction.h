@@ -1,6 +1,9 @@
 #ifndef FRACTION_H
 #define FRACTION_H
-#include <iostream>
+
+#include <istream>
+#include <ostream>
+
 int gcd(int a, int b);
 
 class fraction
