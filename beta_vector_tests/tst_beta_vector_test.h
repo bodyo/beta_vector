@@ -37,8 +37,8 @@ TEST(beta_vector_test, pop_back_check)
     ASSERT_EQ(vec.size(), 4);
 
     auto getLast = vec[vec.size()-1];
-    auto var = vec.at(vec.size()-1);
     vec.pop_back();
+    auto var = vec.at(vec.size()-1);
     ASSERT_NE(getLast, var);
 
     getLast = vec[vec.size()-1];
