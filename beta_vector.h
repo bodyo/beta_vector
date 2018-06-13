@@ -1,18 +1,21 @@
+// This is a personal academic project. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+
 #ifndef BETA_VECTOR_H
 #define BETA_VECTOR_H
 
 #include <initializer_list>
 #include <cassert>
+#include <iterator>
 #include <iostream>
+#include <typeinfo>
+#include <cstddef>
 
 template <class T>
 class beta_vector
 {
     class memory_manager;
 public:
-//    typedef T* iterator;
-//    typedef T const* const_iterator;
-
     beta_vector(size_t size_ = 5): m_memoryManager(size_) { }
     beta_vector(size_t size_, const T &val)
         : m_memoryManager(size_)
@@ -42,121 +45,232 @@ public:
   void pop_back();
 
 public:
-  class iterator
+  class iterator : public std::iterator<std::random_access_iterator_tag, T>
   {
   public:
     iterator() :elem{nullptr} {}
     iterator(T *a): elem{a} {}
     iterator(const iterator &iter): elem{iter.elem} {}
+
+    iterator &operator = (const iterator &iter)
+    {
+        elem = iter.elem;
+        return *this;
+    }
+
     bool operator== (const iterator& iter) const
-    { return elem == iter.elem; }
+    {
+        return elem == iter.elem;
+    }
+
     bool operator!=(const iterator& iter) const
-    { return elem != iter.elem; }
+    {
+        return !(*this == iter);
+    }
 
     T& operator*()
-    { return *elem; }
+    {
+        return *elem;
+    }
+
+    T& operator[](size_t index)
+    {
+        return *(elem+index);
+    }
 
     T* operator ->()
-    { return elem; }
-
-    iterator operator++()
     {
-      ++elem;
-      return *this;
+        return elem;
     }
+
+    iterator& operator++()
+    {
+        ++elem;
+        return *this;
+    }
+
     iterator operator--(int)
     {
       iterator temp(*this);
       --elem;
       return temp;
     }
-    iterator operator--()
+    bool operator <(const iterator &iter)
     {
-      --elem;
-      return *this;
+        return elem < iter.elem;
+    }
+
+    bool operator >(const iterator &iter)
+    {
+        return elem > iter.elem;
+    }
+
+    bool operator <=(const iterator &iter)
+    {
+        return elem <= iter.elem;
+    }
+    bool operator >=(const iterator &iter)
+    {
+        return elem >= iter.elem;
+    }
+
+    ptrdiff_t operator- (const iterator &iter1)
+    {
+        return elem - iter1.elem;
+    }
+
+    iterator& operator -=(const int sub)
+    {
+        elem-=sub;
+        return *this;
+    }
+
+    iterator operator- (size_t val) const
+    {
+        return elem - val;
+    }
+
+    iterator& operator--()
+    {
+        --elem;
+        return *this;
     }
 
     iterator operator++(int)
     {
-      iterator temp(*this);
-      ++elem;
-      return temp;
+        iterator temp(*this);
+        ++elem;
+        return temp;
     }
 
-    iterator operator +=(const size_t add)
+    iterator& operator +=(int val)
     {
-      elem+=add;
-      return *this;
+        elem+=val;
+        return *this;
     }
 
-    iterator operator+(const size_t add)
+    iterator operator+(size_t val) const
     {
-      return *this+=add;
+        return elem + val;
     }
 
   private:
     T *elem;
   };
 
-  class const_iterator
+  class const_iterator : public std::iterator<std::random_access_iterator_tag, T>
   {
   public:
-    const_iterator() :elem{nullptr} {}
-    const_iterator(T *a): elem{a} {}
-    const_iterator(const const_iterator &iter): elem{iter.elem} {}
+    const_iterator()
+        :elem{nullptr}
+    {}
+    const_iterator(T *a)
+        : elem{a}
+    {}
+    const_iterator(const const_iterator &iter)
+        : elem{iter.elem}
+    {}
+    const_iterator& operator = (const const_iterator &iter)
+    {
+        elem = iter.elem;
+        return *this;
+    }
     bool operator== (const const_iterator& iter) const
-    { return elem == iter.elem; }
+    {
+        return elem == iter.elem;
+    }
     bool operator!=(const const_iterator& iter) const
-    { return elem != iter.elem; }
+    {
+        return !(*this == iter);
+    }
 
-    const T& operator*()
-    { return *elem; }
+    bool operator > (const const_iterator &iter) const
+    {
+        return elem > iter.elem;
+    }
 
-    const T* operator ->()
-    { return elem; }
+    bool operator < (const const_iterator &iter) const
+    {
+        return elem < iter.elem;
+    }
 
-    const_iterator operator++()
+    bool operator <= (const const_iterator &iter) const
+    {
+        return elem <= iter.elem;
+    }
+
+    bool operator >= (const const_iterator &iter) const
+    {
+        return elem >= iter.elem;
+    }
+
+    const T& operator*() const
+    {
+        return *elem;
+    }
+
+    const T* operator ->() const
+    {
+        return elem;
+    }
+
+    const_iterator& operator++()
     {
       ++elem;
       return *this;
     }
     const_iterator operator--(int)
     {
-      const_iterator temp(*this);
-      --elem;
-      return temp;
+        const_iterator temp(*this);
+        --elem;
+        return temp;
     }
-    const_iterator operator--()
+    const_iterator& operator--()
     {
-      --elem;
-      return *this;
+        --elem;
+        return *this;
     }
     const_iterator operator++(int)
     {
-      const_iterator temp(*this);
-      ++elem;
-      return temp;
+        const_iterator temp(*this);
+        ++elem;
+        return temp;
     }
 
-    const_iterator operator +=(const size_t add)
+    const_iterator& operator +=(const size_t add)
     {
-      elem+=add;
-      return *this;
+        elem+=add;
+        return *this;
     }
 
-    const_iterator operator+(const size_t add)
+    const_iterator operator+(const size_t add) const
     {
-      return *this+=add;
+        return elem + add;
     }
 
-  private:
+    const_iterator &operator-= (size_t val)
+    {
+        elem-=val;
+        return *this;
+    }
+
+    const_iterator operator- (size_t val) const
+    {
+        return elem - val;
+    }
+    ptrdiff_t operator - (const const_iterator &iter)
+    {
+        return elem - iter.elem;
+    }
+
+private:
     T *elem;
 
   };
 
   iterator begin()
   {
-    return m_memoryManager.data();
+      return m_memoryManager.data();
   }
 
   iterator end()
@@ -164,15 +278,14 @@ public:
     return m_memoryManager.endPointer();
   }
 
-  const_iterator begin() const
+  const_iterator cbegin() const
   {
     return m_memoryManager.data();
   }
-  const_iterator end() const
+  const_iterator cend() const
   {
     return m_memoryManager.endPointer();
   }
-
 
 private:
   memory_manager m_memoryManager;
@@ -183,7 +296,7 @@ private:
       memory_manager(size_t rawSize = 5)
           : m_rawSize(rawSize),
             m_constructedSize(0),
-            m_data(static_cast<T *>(operator new(rawSize * sizeof(T))))
+            m_data(createNewRawMem(rawSize))
       { }
       memory_manager(const std::initializer_list<T> &list)
           : m_rawSize(list.size()),
@@ -192,22 +305,22 @@ private:
       {
           size_t i = 0;
           for (const auto &elem : list)
-              new (m_data+i) T(elem);
+              new (m_data+i++) T(elem);
 
       }
       memory_manager(memory_manager &&toMove)
       {
-          deleteArea(m_data, m_data+m_constructedSize);
-          operator delete[](m_data);
-
           m_constructedSize = toMove.m_constructedSize;
           m_rawSize = toMove.m_rawSize;
           m_data = toMove.m_data;
           toMove.m_data = nullptr;
       }
-      memory_manager & operator = (const memory_manager& coppy)
+      memory_manager& operator= (const memory_manager& coppy)
       {
-          operator delete[](m_data);
+          if (m_data == coppy.m_data)
+              return *this;
+
+          operator delete(m_data);
           createNewRawMem(coppy.m_rawSize);
           m_rawSize = coppy.m_rawSize;
           m_constructedSize = coppy.m_constructedSize;
@@ -216,10 +329,10 @@ private:
 
           return *this;
       }
-      memory_manager& operator = (memory_manager &&toMove)
+      memory_manager& operator= (memory_manager &&toMove)
       {
           deleteArea(m_data, m_data+m_constructedSize);
-          operator delete[](m_data);
+          operator delete(m_data);
 
           m_constructedSize = toMove.m_constructedSize;
           m_rawSize = toMove.m_rawSize;
@@ -232,7 +345,7 @@ private:
       {
           deleteArea(m_data, m_data + m_constructedSize);
 
-          operator delete[](m_data);
+          operator delete(m_data);
       }
 
       static T* createNewRawMem(std::size_t size)
@@ -310,8 +423,8 @@ private:
       }
 
   private:
-      size_t m_rawSize;
-      size_t m_constructedSize;
+      size_t m_rawSize{0};
+      size_t m_constructedSize{0};
       T *m_data{nullptr};
   };
 };
@@ -335,15 +448,13 @@ beta_vector<T>& beta_vector<T>::operator =(beta_vector<T> &&coppy)
 
 template<class T>
 beta_vector<T>::beta_vector(const beta_vector<T> &temp)
-{
-    m_memoryManager = temp.m_memoryManager;
-}
+    :m_memoryManager(temp.m_memoryManager)
+{}
 
 template<class T>
 beta_vector<T>::beta_vector(beta_vector<T> &&other)
-{
-    m_memoryManager = std::move(other.m_memoryManager);
-}
+    :m_memoryManager(std::move(other.m_memoryManager))
+{}
 
 template<class T>
 T beta_vector<T>::at(size_t elem) const
@@ -355,12 +466,11 @@ template<class T>
 beta_vector<T>& beta_vector<T>::operator +=(const beta_vector<T>& cur)
 {
     m_memoryManager.extendBy(cur.m_memoryManager);
-
     return *this;
 }
 
 template<class data_type>
-beta_vector<data_type> operator+ (beta_vector<data_type> first, beta_vector<data_type>& second)
+beta_vector<data_type> operator+ (beta_vector<data_type> first, const beta_vector<data_type>& second)
 {
   return first+=second;
 }
@@ -383,7 +493,7 @@ std::ostream& operator <<(std::ostream& ord, const beta_vector<T>& out)
 template <class T>
 T& beta_vector<T>::operator [](size_t index)
 {
-    assert(index < m_memoryManager.constructedSize() && "Index out of range");
+    assert(index < m_memoryManager.constructedSize() && "Index out of range " && index);
     return m_memoryManager.getDataElem(index);
 }
 

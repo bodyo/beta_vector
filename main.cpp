@@ -3,25 +3,22 @@
 #include "beta_vector.h"
 #include "fraction.h"
 #include <algorithm>
+#include <vector>
+
 using namespace std;
 
 template class beta_vector<int>;
 
-template <class Iter, class T, class Func>
-T reduse(Iter beg , Iter end, T init, Func op)
-{
-    T s = init;
-    while ( beg != end ) {
-        s = op(s, *beg);
-        beg++;
-    }
-  return s;
-}
-
 int main()
 {
-    beta_vector<int> a = {2,3,5,7,98};
+    beta_vector<int> vec{23,1,4,6,8,14,46,89,100,104,346};
 
-    a.push_back(1);
-    a.push_back(2);
+    std::sort(vec.begin(), vec.end(), [](int val1, int val2){
+        return val1 > val2;
+    });
+
+    for (auto elem : vec)
+    {
+        cout << elem << " ";
+    }
 }
