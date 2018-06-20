@@ -23,6 +23,7 @@ public:
         m_memoryManager.initializeByVal(val);
     }
 
+    ~beta_vector() = default;
   beta_vector(const beta_vector& temp);
 
   beta_vector(std::initializer_list<T> ls)
@@ -34,7 +35,7 @@ public:
   friend std::ostream& operator <<(std::ostream& ord, const beta_vector<type_d> &out);
 
   void push_back(const T &val);
-  void resize(size_t addsize = 5);
+//  void resize(size_t addsize = 5); // TODO:
   beta_vector<T>& operator +=(const beta_vector<T>& cur);
   beta_vector<T>& operator +=(const T &add);
   T at(size_t) const;
@@ -91,9 +92,9 @@ public:
 
     iterator operator--(int)
     {
-      iterator temp(*this);
-      --elem;
-      return temp;
+        iterator temp(*this);
+        --elem;
+        return temp;
     }
     bool operator <(const iterator &iter)
     {
@@ -154,6 +155,7 @@ public:
         return elem + val;
     }
 
+    friend beta_vector<T>;
   private:
     T *elem;
   };
@@ -268,9 +270,14 @@ private:
 
   };
 
+  void erase(const iterator &beg)
+  {
+      m_memoryManager.eraseArea(beg.elem);
+  }
+
   iterator begin()
   {
-      return m_memoryManager.data();
+      return m_memoryManager.beginPointer();
   }
 
   iterator end()
@@ -280,7 +287,7 @@ private:
 
   const_iterator cbegin() const
   {
-    return m_memoryManager.data();
+    return m_memoryManager.beginPointer();
   }
   const_iterator cend() const
   {
@@ -303,30 +310,34 @@ private:
             m_constructedSize(list.size()),
             m_data(createNewRawMem(list.size()))
       {
+//          if (std::is_pod<T>::value)
+
           size_t i = 0;
           for (const auto &elem : list)
               new (m_data+i++) T(elem);
 
       }
-      memory_manager(memory_manager &&toMove)
+      memory_manager(const memory_manager& toCoppy)
+          : m_rawSize(toCoppy.m_rawSize),
+            m_constructedSize(toCoppy.m_constructedSize),
+            m_data(createNewRawMem(toCoppy.m_rawSize))
       {
-          m_constructedSize = toMove.m_constructedSize;
-          m_rawSize = toMove.m_rawSize;
-          m_data = toMove.m_data;
+          for (size_t i = 0; i < m_constructedSize; ++i)
+              new(m_data+i) T(toCoppy.m_data[i]);
+      }
+      memory_manager(memory_manager &&toMove)
+          : m_constructedSize(toMove.m_constructedSize),
+            m_rawSize(toMove.m_rawSize),
+            m_data(toMove.m_data)
+      {
           toMove.m_data = nullptr;
+          toMove.m_constructedSize = 0;
+          toMove.m_rawSize = 0;
       }
       memory_manager& operator= (const memory_manager& coppy)
       {
-          if (m_data == coppy.m_data)
-              return *this;
-
-          operator delete(m_data);
-          createNewRawMem(coppy.m_rawSize);
-          m_rawSize = coppy.m_rawSize;
-          m_constructedSize = coppy.m_constructedSize;
-          for (size_t i = 0; i < m_constructedSize; ++i)
-              new(m_data+i) T(coppy.m_data[i]);
-
+          memory_manager tmp(coppy);
+          *this = std::move(tmp);
           return *this;
       }
       memory_manager& operator= (memory_manager &&toMove)
@@ -337,14 +348,16 @@ private:
           m_constructedSize = toMove.m_constructedSize;
           m_rawSize = toMove.m_rawSize;
           m_data = toMove.m_data;
+
           toMove.m_data = nullptr;
+          toMove.m_constructedSize = 0;
+          toMove.m_rawSize = 0;
 
           return *this;
       }
       ~memory_manager()
       {
           deleteArea(m_data, m_data + m_constructedSize);
-
           operator delete(m_data);
       }
 
@@ -353,11 +366,24 @@ private:
           return static_cast<T*>(operator new(size * sizeof(T)));
       }
 
+      void eraseArea(T* begin)
+      {
+          deleteArea(begin, endPointer());
+          m_constructedSize -= endPointer() - begin;
+      }
+
       void initializeByVal(const T& val)
       {
           for (size_t i = 0; i < m_rawSize; ++i)
               new (m_data + i) T(val);
           m_constructedSize = m_rawSize;
+      }
+
+      void swap(memory_manager &mem)
+      {
+          std::swap(m_data, mem.m_data);
+          m_constructedSize = mem.m_constructedSize;
+          m_rawSize = mem.m_rawSize;
       }
 
       void addDataElem(const T& elem)
@@ -377,10 +403,12 @@ private:
           --m_constructedSize;
           endPointer()->~T();
       }
+
       T *endPointer() const
       {
           return m_data + m_constructedSize;
       }
+
       void resize(size_t size)
       {
           m_rawSize += size;
@@ -389,10 +417,11 @@ private:
           for (size_t i = 0; i < m_constructedSize; ++i)
               new (newData+i) T(m_data[i]);
 
-          operator delete[](m_data);
+          operator delete(m_data);
           m_data = newData;
       }
-      T *data() const
+
+      T *beginPointer() const
       {
           return m_data;
       }
@@ -418,8 +447,11 @@ private:
   private:
       void deleteArea(T* begin, T* end)
       {
-          while (begin++ != end)
+          while (begin != end)
+          {
               begin->~T();
+              ++begin;
+          }
       }
 
   private:
@@ -433,7 +465,7 @@ template<class T>
 beta_vector<T>& beta_vector<T>::operator +=(const T& add)
 {
   for(size_t i = 0; i < size(); ++i)
-    m_memoryManager.data()[i] += add;
+    m_memoryManager.beginPointer()[i] += add;
 
   return *this;
 }
@@ -493,7 +525,7 @@ std::ostream& operator <<(std::ostream& ord, const beta_vector<T>& out)
 template <class T>
 T& beta_vector<T>::operator [](size_t index)
 {
-    assert(index < m_memoryManager.constructedSize() && "Index out of range " && index);
+    assert(index <= m_memoryManager.constructedSize());
     return m_memoryManager.getDataElem(index);
 }
 

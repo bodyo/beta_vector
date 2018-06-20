@@ -11,14 +11,31 @@ template class beta_vector<int>;
 
 int main()
 {
-    beta_vector<int> vec{23,1,4,6,8,14,46,89,100,104,346};
+    beta_vector<beta_vector<int>> vec{{1,2,3}, {12,45}};
 
-    std::sort(vec.begin(), vec.end(), [](int val1, int val2){
-        return val1 > val2;
-    });
+//    vec.push_back(beta_vector<int>(4,5));
+//    vec.push_back(beta_vector<int>(5,6));
+//    vec.push_back(beta_vector<int>(6,7));
 
-    for (auto elem : vec)
-    {
-        cout << elem << " ";
-    }
+//    beta_vector<std::vector<int>> vec;
+
+//    vec.push_back(std::vector<int>(4,5));
+//    vec.push_back(std::vector<int>(5,6));
+//    vec.push_back(std::vector<int>(6,7));
+
+//    for (auto elem : vec.at(0))
+//    {
+//        cout << elem << " ";
+//    }
+//    cout << endl;
+//    for (auto elem : vec.at(1))
+//    {
+//        cout << elem << " ";
+//    }
+//    cout << endl;
+//    for (auto elem : vec.at(2))
+//    {
+//        cout << elem << " ";
+//    }
+//    cout << vec.size();
 }

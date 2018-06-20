@@ -20,7 +20,7 @@ int gcd(int a, int b)
 
 void fraction::reduce()
 {
-  ch==0?zn=0:zn=zn;
+  zn = ch == 0 ? 0 : zn;
   int a = gcd(ch>0?ch:-ch, zn>0?zn:-zn);
   ch/=a;
   zn/=a;
